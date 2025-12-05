@@ -159,7 +159,7 @@ if (btnPDF) {
 
         try {
             if (!window.jspdf || !window.html2canvas) {
-                throw new Error("Librerías no cargadas.");
+                throw new Error("Las librerías no cargaron.");
             }
 
             // --- PASO 1: PREPARAR EL DOM PARA LA FOTO ---
@@ -195,10 +195,13 @@ if (btnPDF) {
             await new Promise(resolve => setTimeout(resolve, 300));
 
             // --- PASO 2: TOMAR LA FOTO (Gráficos + Historial) ---
-            const elemento = document.body; 
+            // MEJORA: Usamos el ID específico si existe, es más seguro que document.body en producción
+            const elemento = document.getElementById("contenidoParaPDF") || document.body; 
+            
             const canvas = await window.html2canvas(elemento, {
                 scale: 2, 
-                useCORS: true,
+                useCORS: true,      // CRUCIAL: Permite cargar fuentes/imágenes externas
+                allowTaint: false,  // CRUCIAL: Evita errores de seguridad en el navegador
                 logging: false,
                 windowWidth: elemento.scrollWidth,
                 windowHeight: elemento.scrollHeight 
@@ -235,7 +238,7 @@ if (btnPDF) {
             pdf.setFont("helvetica", "bold");
             pdf.setFontSize(16);
             pdf.setTextColor(40, 40, 40);
-            pdf.text("Recomendación detallado por IA GEMINI", 15, 20);
+            pdf.text("Análisis Detallado de Inteligencia Artificial", 15, 20);
 
             // Configurar cuerpo del texto
             pdf.setFont("helvetica", "normal");
@@ -255,7 +258,8 @@ if (btnPDF) {
 
         } catch (error) {
             console.error("Error PDF:", error);
-            alert("Error: " + error.message);
+            // MEJORA: Mensaje detallado para saber qué pasa en Render
+            alert("Error al generar PDF: " + error.message + "\n\n(Revisa la consola con F12 para ver el error de seguridad exacto)");
         } finally {
             // --- PASO 5: RESTAURAR TODO ---
             btnPDF.innerText = textoOriginal;
