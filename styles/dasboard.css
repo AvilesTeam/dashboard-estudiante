@@ -1,0 +1,118 @@
+/* style_dashboard.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+:root {
+    --bg-color: #f0f2f5;
+    --card-bg: #ffffff;
+    --primary: #4f46e5;
+    --text-dark: #1f2937;
+    --text-light: #6b7280;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --radius: 16px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    padding: 40px 20px;
+    /* AQUÍ NO USAMOS FLEX EN EL BODY PARA NO ROMPER EL GRID */
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+h2 { font-size: 2rem; color: var(--text-dark); }
+.subtitle { color: var(--text-light); }
+
+/* GRID LAYOUT */
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    grid-template-rows: auto auto;
+    gap: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+    grid-template-areas:
+        "chart reco"
+        "class hist";
+}
+
+/* TARJETAS */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* ÁREAS */
+.box-chart { grid-area: chart; align-items: center; }
+.box-reco  { grid-area: reco; }
+.box-class { grid-area: class; text-align: center; justify-content: center; }
+.box-hist  { grid-area: hist; }
+
+/* COMPONENTES INTERNOS */
+.chart-wrapper { width: 100%; position: relative; height: 300px; }
+
+.flex-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+
+#btnRecomendar {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+#recomendacion {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 15px;
+    border-radius: 8px;
+    height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+}
+
+.status-indicator span {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: #eef2ff;
+    padding: 10px 25px;
+    border-radius: 50px;
+}
+
+#listaHistorial { list-style: none; max-height: 200px; overflow-y: auto; }
+#listaHistorial li { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+        grid-template-areas: "chart" "class" "reco" "hist";
+    }
+}

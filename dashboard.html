@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Estudiante</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="https://unpkg.com/@google/genai"></script>
+    <link rel="stylesheet" href="styles/dasboard.css">
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <header>
+            <h2>Dashboard de Rendimiento</h2>
+            <p class="subtitle">Resumen académico y recomendaciones IA</p>
+        </header>
+
+        <div class="grid-container">
+            
+            <div class="card box-chart">
+                <div class="card-header">
+                    <h3>Métricas de Habilidades</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card box-reco">
+                <div class="card-header flex-header">
+                    <h3>Análisis de IA</h3>
+                    <button id="btnRecomendar">
+                        ✨ Generar Recomendación
+                    </button>
+                </div>
+                <div class="reco-content">
+                    <pre id="recomendacion">Haz clic en el botón para obtener un análisis personalizado de Gemini...</pre>
+                </div>
+            </div>
+
+            <div class="card box-class">
+                <h3>Nivel Actual</h3>
+                <div class="status-indicator">
+                    <span id="clasificacion">--</span>
+                </div>
+            </div>
+
+            <div class="card box-hist">
+                <h3>Historial de Evaluaciones</h3>
+                <ul id="listaHistorial">
+                    </ul>
+            </div>
+
+        </div>
+    </div>
+<div style="text-align: center; margin: 20px;">
+    <button id="btnDescargarPDF" style="background-color: #d9534f; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+        📄 Descargar Reporte Completo PDF
+    </button>
+</div>
+    <script type="module" src="dashboard.js"></script>
+</body>
+
+<!-- Tu lista donde se muestran los datos -->
+<ul id="listaHistorial"></ul>
+
+<script>
+    // Función para borrar SOLAMENTE la variable "historial"
+    function borrarHistorialEvaluaciones() {
+        if (confirm("¿Estás seguro de vaciar todo el historial de evaluaciones?")) {
+            // 1. Borramos solo la clave específica donde guardas tus datos
+            localStorage.removeItem("historial");
+            
+            // 2. Recargamos la página para que se vea limpia
+            location.reload();
+        }
+    }
+</script>
+
+<button onclick="borrarHistorialEvaluaciones()" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+    🗑️ Vaciar Historial de Evaluaciones
+</button>
+
+
+</html>
