@@ -128,3 +128,155 @@ historial.forEach(item => {
 document.addEventListener("DOMContentLoaded", function () {
     renderRadarChart();
 });
+// ==========================================
+// LÓGICA PARA DESCARGAR PDF (Híbrido: Imagen + Texto)
+// ==========================================
+const btnPDF = document.getElementById("btnDescargarPDF");
+
+if (btnPDF) {
+    btnPDF.addEventListener("click", async function () {
+        
+        // 1. Feedback visual
+        const textoOriginal = btnPDF.innerText;
+        btnPDF.innerText = "⏳ Generando Reporte Híbrido...";
+        btnPDF.disabled = true;
+
+        // ELEMENTOS
+        const listaHistorial = document.getElementById("listaHistorial");
+        const contenedorPrincipal = document.querySelector(".grid-container"); 
+        const boxReco = document.querySelector(".box-reco"); // La tarjeta completa de la IA
+        const textoIAElement = document.getElementById("recomendacion");
+
+        // VARIABLES PARA RESTAURAR
+        let origStyles = {
+            hist: { height: "", overflow: "" },
+            grid: { display: "", gap: "", gridTemplateColumns: "", height: "" },
+            recoDisplay: "" 
+        };
+
+        // Capturamos el texto de la IA antes de ocultar nada
+        const textoIA = textoIAElement ? textoIAElement.innerText : "No hay recomendaciones disponibles.";
+
+        try {
+            if (!window.jspdf || !window.html2canvas) {
+                throw new Error("Librerías no cargadas.");
+            }
+
+            // --- PASO 1: PREPARAR EL DOM PARA LA FOTO ---
+            
+            // A) Ocultar la caja de recomendación (para que no salga en la foto cortada)
+            if (boxReco) {
+                origStyles.recoDisplay = boxReco.style.display;
+                boxReco.style.display = "none"; 
+            }
+
+            // B) Linearizar el diseño (Una columna vertical)
+            if (contenedorPrincipal) {
+                origStyles.grid.display = contenedorPrincipal.style.display;
+                origStyles.grid.gridTemplateColumns = contenedorPrincipal.style.gridTemplateColumns;
+                origStyles.grid.gap = contenedorPrincipal.style.gap;
+                origStyles.grid.height = contenedorPrincipal.style.height;
+
+                contenedorPrincipal.style.display = "flex";
+                contenedorPrincipal.style.flexDirection = "column";
+                contenedorPrincipal.style.gap = "20px";
+                contenedorPrincipal.style.height = "auto";
+            }
+
+            // C) Expandir Historial (para que salga completo en la foto)
+            if (listaHistorial) {
+                origStyles.hist.height = listaHistorial.style.maxHeight;
+                origStyles.hist.overflow = listaHistorial.style.overflow;
+                listaHistorial.style.maxHeight = "none";
+                listaHistorial.style.overflow = "visible";
+            }
+
+            // Esperar renderizado
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            // --- PASO 2: TOMAR LA FOTO (Gráficos + Historial) ---
+            const elemento = document.body; 
+            const canvas = await window.html2canvas(elemento, {
+                scale: 2, 
+                useCORS: true,
+                logging: false,
+                windowWidth: elemento.scrollWidth,
+                windowHeight: elemento.scrollHeight 
+            });
+
+            // --- PASO 3: GENERAR PDF ---
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf; 
+            const pdf = new jsPDF('p', 'mm', 'a4');
+
+            const pdfWidth = 210; 
+            const pdfHeight = 297; 
+            const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            // Agregar la imagen (Página 1 y siguientes si es larga)
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+            heightLeft -= pdfHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                heightLeft -= pdfHeight;
+            }
+
+            // --- PASO 4: AGREGAR RECOMENDACIÓN COMO TEXTO PLANO ---
+            // Creamos una nueva página exclusiva para el texto de la IA
+            pdf.addPage();
+            
+            // Configurar fuente
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(16);
+            pdf.setTextColor(40, 40, 40);
+            pdf.text("Recomendación detallado por IA GEMINI", 15, 20);
+
+            // Configurar cuerpo del texto
+            pdf.setFont("helvetica", "normal");
+            pdf.setFontSize(12);
+            pdf.setTextColor(0, 0, 0);
+
+            // Ajuste de línea automático (Word Wrap)
+            const margen = 15;
+            const anchoMaximo = 180; // Ancho A4 (210) - Márgenes
+            const lineasTexto = pdf.splitTextToSize(textoIA, anchoMaximo);
+            
+            // Escribir texto
+            pdf.text(lineasTexto, margen, 35);
+
+            // Guardar
+            pdf.save('Reporte_Estudiante_Completo.pdf');
+
+        } catch (error) {
+            console.error("Error PDF:", error);
+            alert("Error: " + error.message);
+        } finally {
+            // --- PASO 5: RESTAURAR TODO ---
+            btnPDF.innerText = textoOriginal;
+            btnPDF.disabled = false;
+
+            // Restaurar Recomendación
+            if (boxReco) boxReco.style.display = origStyles.recoDisplay;
+
+            // Restaurar Grid
+            if (contenedorPrincipal) {
+                contenedorPrincipal.style.display = origStyles.grid.display;
+                contenedorPrincipal.style.gridTemplateColumns = origStyles.grid.gridTemplateColumns;
+                contenedorPrincipal.style.gap = origStyles.grid.gap;
+                contenedorPrincipal.style.height = origStyles.grid.height;
+            }
+
+            // Restaurar Historial
+            if (listaHistorial) {
+                listaHistorial.style.maxHeight = origStyles.hist.height;
+                listaHistorial.style.overflow = origStyles.hist.overflow;
+            }
+        }
+    });
+}

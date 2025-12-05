@@ -5,16 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Estudiante</title>
 
+    <!-- Fuentes y Estilos -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="https://unpkg.com/@google/genai"></script>
     <link rel="stylesheet" href="styles/dasboard.css">
+
+    <!-- LIBRERÍAS PARA PDF Y GRÁFICOS (Importante: Mantener este orden) -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- SDK de Google Generative AI -->
+    <script type="module" src="https://unpkg.com/@google/genai"></script>
 </head>
 <body>
 
-    <div class="main-wrapper">
+    <!-- Contenedor Principal -->
+    <div class="main-wrapper" id="contenidoParaPDF">
         <header>
             <h2>Dashboard de Rendimiento</h2>
             <p class="subtitle">Resumen académico y recomendaciones IA</p>
@@ -22,6 +28,7 @@
 
         <div class="grid-container">
             
+            <!-- Gráfico -->
             <div class="card box-chart">
                 <div class="card-header">
                     <h3>Métricas de Habilidades</h3>
@@ -31,6 +38,7 @@
                 </div>
             </div>
 
+            <!-- Recomendación IA -->
             <div class="card box-reco">
                 <div class="card-header flex-header">
                     <h3>Análisis de IA</h3>
@@ -43,6 +51,7 @@
                 </div>
             </div>
 
+            <!-- Clasificación -->
             <div class="card box-class">
                 <h3>Nivel Actual</h3>
                 <div class="status-indicator">
@@ -50,41 +59,41 @@
                 </div>
             </div>
 
+            <!-- Historial -->
             <div class="card box-hist">
                 <h3>Historial de Evaluaciones</h3>
                 <ul id="listaHistorial">
-                    </ul>
+                    <!-- Se llena con JS -->
+                </ul>
             </div>
 
         </div>
     </div>
-<div style="text-align: center; margin: 20px;">
-    <button id="btnDescargarPDF" style="background-color: #d9534f; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
-        📄 Descargar Reporte Completo PDF
-    </button>
-</div>
+
+    <!-- Botones de Acción (Fuera del grid pero dentro del body) -->
+    <div style="text-align: center; margin: 30px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+        
+        <button id="btnDescargarPDF" style="background-color: #d9534f; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+            📄 Descargar Reporte Completo PDF
+        </button>
+
+        <button onclick="borrarHistorialEvaluaciones()" style="background-color: #dc3545; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+            🗑️ Vaciar Historial
+        </button>
+
+    </div>
+
+    <!-- Lógica del botón borrar (Directo en HTML para simplicidad) -->
+    <script>
+        function borrarHistorialEvaluaciones() {
+            if (confirm("¿Estás seguro de vaciar todo el historial de evaluaciones?")) {
+                localStorage.removeItem("historial");
+                location.reload();
+            }
+        }
+    </script>
+
+    <!-- Script Principal -->
     <script type="module" src="dashboard.js"></script>
 </body>
-
-<!-- Tu lista donde se muestran los datos -->
-<ul id="listaHistorial"></ul>
-
-<script>
-    // Función para borrar SOLAMENTE la variable "historial"
-    function borrarHistorialEvaluaciones() {
-        if (confirm("¿Estás seguro de vaciar todo el historial de evaluaciones?")) {
-            // 1. Borramos solo la clave específica donde guardas tus datos
-            localStorage.removeItem("historial");
-            
-            // 2. Recargamos la página para que se vea limpia
-            location.reload();
-        }
-    }
-</script>
-
-<button onclick="borrarHistorialEvaluaciones()" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-    🗑️ Vaciar Historial de Evaluaciones
-</button>
-
-
 </html>
