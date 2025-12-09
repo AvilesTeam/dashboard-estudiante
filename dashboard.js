@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
 async function renderRadarChart() {
     const ctx = document.getElementById("radarChart");
 
-    // Destruir gráfico previo si existe
+    // DestruAIzaSyDWwZRTL2NcC4M85HgFH_ojVVrEyf63xY0ir gráfico previo si existe
     if (radarChartInstance) {
         radarChartInstance.destroy();
     }
@@ -99,7 +99,7 @@ async function renderRadarChart() {
 // --------------------------------------------------
 
 // ⚠ Tu API Key (visible solo para pruebas)
-const apiKey = "AIzaSyAXqqRzU_mmqIL0dodXWX1KaBYnyMJlLwk";
+const apiKey = "AIzaSyDWwZRTL2NcC4M85HgFH_ojVVrEyf63xY0";
 
 // Inicializar cliente de Gemini
 const ai = new GoogleGenerativeAI(apiKey);
