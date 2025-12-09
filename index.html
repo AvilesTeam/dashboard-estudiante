@@ -15,30 +15,15 @@
         <header>
             <h2>Formulario de Evaluación</h2>
             <p class="subtitle">Ingresa los datos del alumno</p>
+            <a href="admin.html" style="font-size: 12px; color: #667eea; text-decoration: none; margin-top: 10px;">⚙️ Configurar Campos</a>
         </header>
 
         <form id="evalForm">
             
-            <div class="form-group">
-                <label for="puntualidad">Puntualidad (0-100)</label>
-                <input type="number" id="puntualidad" min="0" max="100" placeholder="Ej. 80" required>
-            </div>
+            <!-- SECCIÓN DINÁMICA (TODOS LOS CAMPOS SON DINÁMICOS) -->
+            <div id="camposDinamicos"></div>
 
-            <div class="form-group">
-                <label for="responsabilidad">Responsabilidad (0-100)</label>
-                <input type="number" id="responsabilidad" min="0" max="100" placeholder="Ej. 90" required>
-            </div>
-
-            <div class="form-group">
-                <label for="tecnicas">Habilidades Técnicas (0-100)</label>
-                <input type="number" id="tecnicas" min="0" max="100" placeholder="Ej. 75" required>
-            </div>
-
-            <div class="form-group">
-                <label for="comunicacion">Comunicación (0-100)</label>
-                <input type="number" id="comunicacion" min="0" max="100" placeholder="Ej. 85" required>
-            </div>
-
+            <!-- OBSERVACIONES -->
             <div class="form-group">
                 <label for="observaciones">Observaciones</label>
                 <textarea id="observaciones" placeholder="Escribe tus comentarios aquí..."></textarea>

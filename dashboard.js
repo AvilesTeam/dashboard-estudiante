@@ -8,10 +8,7 @@ let radarChartInstance = null;
 
 // Cargar datos desde localStorage o usar valores por defecto
 const data = JSON.parse(localStorage.getItem("evaluacion")) || {
-    puntualidad: 5,
-    responsabilidad: 7,
-    tecnicas: 8,
-    comunicacion: 6,
+    campos: {},
     observaciones: "Evaluación inicial pendiente.",
     clasificacion: "Sin datos"
 };
@@ -19,12 +16,13 @@ const data = JSON.parse(localStorage.getItem("evaluacion")) || {
 // Mostrar clasificación cuando cargue el DOM
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("clasificacion").innerText = data.clasificacion || "Sin datos";
+    renderRadarChart();
 });
 
 // --------------------------------------------------
-// FUNCIÓN PARA RENDERIZAR EL GRÁFICO RADAR
+// FUNCIÓN PARA RENDERIZAR EL GRÁFICO RADAR (DINÁMICO)
 // --------------------------------------------------
-function renderRadarChart() {
+async function renderRadarChart() {
     const ctx = document.getElementById("radarChart");
 
     // Destruir gráfico previo si existe
@@ -32,18 +30,49 @@ function renderRadarChart() {
         radarChartInstance.destroy();
     }
 
+    // Preparar etiquetas y valores desde campos dinámicos
+    const campos = data.campos || {};
+    const labels = Object.keys(campos);
+    const valores = Object.values(campos);
+
+    // Si no hay datos, mostrar gráfico vacío
+    if (labels.length === 0) {
+        radarChartInstance = new Chart(ctx, {
+            type: "radar",
+            data: {
+                labels: ["Sin datos"],
+                datasets: [{
+                    label: "Desempeño",
+                    data: [0],
+                    borderWidth: 2,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        angleLines: { display: false },
+                        min: 0,
+                        max: 100,
+                        pointLabels: { font: { size: 14 } }
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        return;
+    }
+
     radarChartInstance = new Chart(ctx, {
         type: "radar",
         data: {
-            labels: ["Puntualidad", "Responsabilidad", "Técnicas", "Comunicación"],
+            labels: labels,
             datasets: [{
                 label: "Desempeño",
-                data: [
-                    data.puntualidad,
-                    data.responsabilidad,
-                    data.tecnicas,
-                    data.comunicacion
-                ],
+                data: valores,
                 borderWidth: 2,
                 borderColor: 'rgba(75, 192, 192, 1)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -54,7 +83,7 @@ function renderRadarChart() {
             scales: {
                 r: {
                     angleLines: { display: false },
-                   min: 0,      // Obliga al gráfico a empezar en 0
+                    min: 0,      // Obliga al gráfico a empezar en 0
                     max: 100,    // Obliga al gráfico a terminar en 100 (Fijo)
                     pointLabels: { font: { size: 14 } }
                 }
@@ -79,21 +108,22 @@ const ai = new GoogleGenerativeAI(apiKey);
 document.getElementById("btnRecomendar").addEventListener("click", async () => {
     document.getElementById("recomendacion").innerText = "Procesando...";
 
-    const prompt = `
-Evaluar desempeño del estudiante (escala 0-100):
-Puntualidad: ${data.puntualidad}
-Responsabilidad: ${data.responsabilidad}
-Técnicas: ${data.tecnicas}
-Comunicación: ${data.comunicacion}
-Observaciones: ${data.observaciones}
-
-Genera recomendaciones claras, realistas y accionables para mejorar las áreas con menor puntuación.
-`;
+    // Construir prompt dinámico con TODOS los campos
+    let promptText = "Evaluar desempeño del estudiante (escala 0-100):\n";
+    
+    // Agregar todos los campos dinámicos
+    const campos = data.campos || {};
+    Object.entries(campos).forEach(([campo, valor]) => {
+        promptText += `${campo}: ${valor}\n`;
+    });
+    
+    promptText += `Observaciones: ${data.observaciones}\n\n`;
+    promptText += "Genera recomendaciones claras, realistas y accionables para mejorar las áreas con menor puntuación.";
 
     try {
         const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-        const response = await model.generateContent(prompt);
+        const response = await model.generateContent(promptText);
 
         const textResult =
             response.response.candidates?.[0]?.content?.parts?.[0]?.text ||
@@ -115,10 +145,16 @@ const historial = JSON.parse(localStorage.getItem("historial")) || [];
 const lista = document.getElementById("listaHistorial");
 
 historial.forEach(item => {
+    // Calcular promedio dinámicamente
+    const campos = item.campos || {};
+    const valores = Object.values(campos).filter(v => !isNaN(v));
+    
+    const promedio = valores.length > 0 
+        ? (valores.reduce((a, b) => a + b, 0) / valores.length).toFixed(1)
+        : 0;
+    
     const li = document.createElement("li");
-    li.textContent = `${item.fecha} - Promedio: ${
-        ((item.puntualidad + item.responsabilidad + item.tecnicas + item.comunicacion) / 4).toFixed(1)
-    } (${item.clasificacion})`;
+    li.textContent = `${item.fecha} - Promedio: ${promedio} (${item.clasificacion || 'Sin clasificar'})`;
     lista.appendChild(li);
 });
 
