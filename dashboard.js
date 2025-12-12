@@ -99,7 +99,7 @@ async function renderRadarChart() {
 // --------------------------------------------------
 
 // ⚠ Tu API Key
-const apiKey = "AIzaSyAUqyePYss_5JE2cqFNeqOK-rA1IVhyRLo";
+const apiKey = "AIzaSyD9urAatto4jyM7YcUEGUjh0q5oOxB4mrg";
 
 // Inicializar cliente de Gemini
 const ai = new GoogleGenerativeAI(apiKey);
