@@ -98,8 +98,8 @@ async function renderRadarChart() {
 // CONFIGURACIÓN DE GEMINI
 // --------------------------------------------------
 
-// ⚠ Tu API Key (visible solo para pruebas)
-const apiKey = "AIzaSyDWwZRTL2NcC4M85HgFH_ojVVrEyf63xY0";
+// ⚠ Tu API Key
+const apiKey = "AIzaSyAUqyePYss_5JE2cqFNeqOK-rA1IVhyRLo";
 
 // Inicializar cliente de Gemini
 const ai = new GoogleGenerativeAI(apiKey);
@@ -111,23 +111,47 @@ document.getElementById("btnRecomendar").addEventListener("click", async () => {
     // Construir prompt dinámico con TODOS los campos
     let promptText = "Evaluar desempeño del estudiante (escala 0-100):\n";
     
-    // Agregar todos los campos dinámicos
+    // Agregar campos dinámicos
     const campos = data.campos || {};
     Object.entries(campos).forEach(([campo, valor]) => {
         promptText += `${campo}: ${valor}\n`;
     });
-    
+
     promptText += `Observaciones: ${data.observaciones}\n\n`;
-    promptText += "Genera recomendaciones claras, realistas y accionables para mejorar las áreas con menor puntuación.";
+promptText += `
+Actúa como un Coordinador Académico experto y Mentor. Tu tarea es generar un **Informe de Desempeño y Retroalimentación** para un practicante, dirigido al docente supervisor.
+
+El objetivo es que este informe sea lo suficientemente detallado para entender el contexto del alumno, pero sin ser un texto genérico o relleno. El tono debe ser formal, constructivo y analítico.
+
+Por favor, estructura la respuesta estrictamente en las siguientes secciones (usa negritas para los títulos):
+
+**1. Análisis General del Desempeño:**
+Redacta un párrafo (3-4 líneas) que integre el promedio obtenido con las observaciones. No solo repitas la nota, interpreta si el alumno es equilibrado o si tiene brechas grandes entre sus habilidades blandas y técnicas.
+
+**2. Fortalezas Clave:**
+Identifica la competencia con mayor puntaje. Explica brevemente por qué esta habilidad es valiosa para su futuro profesional.
+
+**3. Áreas Críticas de Mejora:**
+Menciona las competencias con menor puntaje (con su nota entre paréntesis). Explica el impacto negativo que estas deficiencias tienen en su trabajo diario si no se corrigen.
+
+**4. Plan de Acción Recomendado:**
+Proporciona 3 estrategias específicas y accionables (tipo "bullet points") para mejorar las áreas débiles. Evita consejos obvios como "debe mejorar"; en su lugar, sugiere "cómo" hacerlo (ej: usar herramientas de gestión, solicitar feedback semanal, etc.).
+
+**5. Conclusión y Orientación:**
+Una frase final de cierre que motive al cambio o refuerce el buen desempeño, manteniendo la seriedad académica.
+
+IMPORTANTE: No uses listas para todo, redacta párrafos coherentes en las secciones 1, 2 y 3. Usa viñetas solo en la sección 4.
+`;
 
     try {
-        const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
+        // Modelo correcto
+        const model = ai.getGenerativeModel({ model:"gemini-2.5-flash" });
 
+        // Generación correcta
         const response = await model.generateContent(promptText);
 
-        const textResult =
-            response.response.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "No se pudo generar la recomendación.";
+        // Extraer texto correctamente con .text()
+        const textResult = response.response.text() || "No se pudo generar la recomendación.";
 
         document.getElementById("recomendacion").innerText = textResult;
 
@@ -137,6 +161,7 @@ document.getElementById("btnRecomendar").addEventListener("click", async () => {
             "Error generando recomendación. Revisa la consola.";
     }
 });
+
 
 // --------------------------------------------------
 // HISTORIAL
